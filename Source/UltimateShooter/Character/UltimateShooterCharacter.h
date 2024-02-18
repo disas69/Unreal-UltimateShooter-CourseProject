@@ -40,7 +40,7 @@ protected:
 	void LookUpAtRate(const FInputActionValue& Value);
 	
 	UPROPERTY(EditAnywhere)
-	UInputDataConfig* InputDataConfig;
+	UInputDataConfig* InputDataConfig = nullptr;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
