@@ -7,6 +7,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "UltimateShooter/Input/InputDataConfig.h"
 
@@ -25,6 +26,12 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	
+	SetupCharacterMovement();
 }
 
 // Called when the game starts or when spawned
@@ -103,5 +110,14 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 		float LookUpAmount = AxisValue * LookUpRate * GetWorld()->GetDeltaSeconds();
 		AddControllerPitchInput(LookUpAmount);
 	}
+}
+
+void AUltimateShooterCharacter::SetupCharacterMovement()
+{
+	UCharacterMovementComponent* CharacterMovement = GetCharacterMovement();
+	CharacterMovement->bOrientRotationToMovement = true;
+	CharacterMovement->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
+	CharacterMovement->JumpZVelocity = 600.0f;
+	CharacterMovement->AirControl = 0.2f;
 }
 
