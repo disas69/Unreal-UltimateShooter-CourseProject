@@ -18,15 +18,18 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// CameraBoom follows the controller rotation
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent.Get());
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
+	// Camera follows the CameraBoom
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	// Character does not rotate with the controller
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
@@ -77,7 +80,10 @@ void AUltimateShooterCharacter::MoveForward(const FInputActionValue& Value)
 	float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
+		// Get the forward direction based on the camera orientation and apply movement
 		FVector Direction = FRotationMatrix(FollowCamera->GetComponentRotation()).GetScaledAxis(EAxis::X);
+		Direction.Z = 0;
+		Direction.Normalize();
 		AddMovementInput(Direction, AxisValue);
 	}
 }
@@ -87,7 +93,10 @@ void AUltimateShooterCharacter::MoveRight(const FInputActionValue& Value)
 	float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
+		// Get the right direction based on the camera orientation and apply movement
 		FVector Direction = FRotationMatrix(FollowCamera->GetComponentRotation()).GetScaledAxis(EAxis::Y);
+		Direction.Z = 0;
+		Direction.Normalize();
 		AddMovementInput(Direction, AxisValue);
 	}
 }
@@ -112,12 +121,12 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 	}
 }
 
-void AUltimateShooterCharacter::SetupCharacterMovement()
+void AUltimateShooterCharacter::SetupCharacterMovement() const
 {
-	UCharacterMovementComponent* CharacterMovement = GetCharacterMovement();
-	CharacterMovement->bOrientRotationToMovement = true;
-	CharacterMovement->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
-	CharacterMovement->JumpZVelocity = 600.0f;
-	CharacterMovement->AirControl = 0.2f;
+	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
+	CharacterMovementComponent->bOrientRotationToMovement = true;
+	CharacterMovementComponent->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
+	CharacterMovementComponent->JumpZVelocity = 600.0f;
+	CharacterMovementComponent->AirControl = 0.2f;
 }
 

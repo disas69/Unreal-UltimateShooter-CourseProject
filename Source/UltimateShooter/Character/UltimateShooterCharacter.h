@@ -43,7 +43,7 @@ protected:
 	UInputDataConfig* InputDataConfig = nullptr;
 
 private:
-	void SetupCharacterMovement();
+	void SetupCharacterMovement() const;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
