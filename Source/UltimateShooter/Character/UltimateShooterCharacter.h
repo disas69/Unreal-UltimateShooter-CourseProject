@@ -38,6 +38,7 @@ protected:
 	void MoveRight(const FInputActionValue& Value);
 	void TurnAtRate(const FInputActionValue& Value);
 	void LookUpAtRate(const FInputActionValue& Value);
+	void FireWeapon();
 	
 	UPROPERTY(EditAnywhere)
 	UInputDataConfig* InputDataConfig = nullptr;
@@ -56,4 +57,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float LookUpRate = 45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	class USoundBase* WeaponFireSound = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* WeaponFireFX = nullptr;
 };

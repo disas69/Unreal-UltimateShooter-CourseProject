@@ -7,7 +7,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "UltimateShooter/Input/InputDataConfig.h"
 
@@ -73,6 +75,7 @@ void AUltimateShooterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 	Input->BindAction(InputDataConfig->TurnRight, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::TurnAtRate);
 	Input->BindAction(InputDataConfig->LookUp, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::LookUpAtRate);
 	Input->BindAction(InputDataConfig->Jump, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::Jump);
+	Input->BindAction(InputDataConfig->Fire, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::FireWeapon);
 }
 
 void AUltimateShooterCharacter::MoveForward(const FInputActionValue& Value)
@@ -118,6 +121,24 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 	{
 		float LookUpAmount = AxisValue * LookUpRate * GetWorld()->GetDeltaSeconds();
 		AddControllerPitchInput(LookUpAmount);
+	}
+}
+
+void AUltimateShooterCharacter::FireWeapon()
+{
+	if (WeaponFireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
+	}
+
+	if (WeaponFireFX != nullptr)
+	{
+		const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+		if (BarrelSocket != nullptr)
+		{
+			const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponFireFX, SocketTransform);
+		}
 	}
 }
 
