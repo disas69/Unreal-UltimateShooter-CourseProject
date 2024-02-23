@@ -137,7 +137,7 @@ void AUltimateShooterCharacter::FireWeapon()
 		if (BarrelSocket != nullptr)
 		{
 			const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponFireFX, SocketTransform);
+			UGameplayStatics::SpawnEmitterAttached(WeaponFireFX, GetMesh(), BarrelSocket->GetFName(), SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator(), EAttachLocation::KeepWorldPosition);
 		}
 	}
 }
