@@ -140,6 +140,13 @@ void AUltimateShooterCharacter::FireWeapon()
 			UGameplayStatics::SpawnEmitterAttached(WeaponFireFX, GetMesh(), BarrelSocket->GetFName(), SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator(), EAttachLocation::KeepWorldPosition);
 		}
 	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr && FireAnimation != nullptr)
+	{
+		AnimInstance->Montage_Play(FireAnimation);
+		AnimInstance->Montage_JumpToSection(FName("StartFire"), FireAnimation);
+	}
 }
 
 void AUltimateShooterCharacter::SetupCharacterMovement() const
