@@ -10,6 +10,8 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
+#include "Particles/ParticleSystemComponent.h"
 
 #include "UltimateShooter/Input/InputDataConfig.h"
 
@@ -126,26 +128,57 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 
 void AUltimateShooterCharacter::FireWeapon()
 {
-	if (WeaponFireSound != nullptr)
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
+	if (BarrelSocket != nullptr)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
-	}
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
 
-	if (WeaponFireFX != nullptr)
-	{
-		const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
-		if (BarrelSocket != nullptr)
+		if (WeaponFireFX != nullptr)
 		{
-			const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
 			UGameplayStatics::SpawnEmitterAttached(WeaponFireFX, GetMesh(), BarrelSocket->GetFName(), SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator(), EAttachLocation::KeepWorldPosition);
+		}
+
+		if (WeaponFireSound != nullptr)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
+		}
+
+		FHitResult HitResult;
+		const FVector StartLocation = SocketTransform.GetLocation();
+		const FVector EndLocation = StartLocation + SocketTransform.GetRotation().GetForwardVector() * 10'000.0f;
+		FVector TrailTarget = EndLocation;
+		
+		FCollisionQueryParams CollisionQueryParams;
+		CollisionQueryParams.AddIgnoredActor(this);
+
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, CollisionQueryParams))
+		{
+			TrailTarget = HitResult.Location;
+			
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor != nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
+			}
+
+			if (ImpactParticle != nullptr)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, HitResult.Location, HitResult.ImpactNormal.Rotation());
+			}
+		}
+
+		if (TrailParticle != nullptr)
+		{
+			UParticleSystemComponent* Trail = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailParticle, StartLocation, (TrailTarget - StartLocation).Rotation());
+			Trail->SetVectorParameter("Target", TrailTarget);
 		}
 	}
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance != nullptr && FireAnimation != nullptr)
 	{
-		AnimInstance->Montage_Play(FireAnimation);
 		AnimInstance->Montage_JumpToSection(FName("StartFire"), FireAnimation);
+		AnimInstance->Montage_Play(FireAnimation);
 	}
 }
 
