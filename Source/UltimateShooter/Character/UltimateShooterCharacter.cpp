@@ -128,6 +128,11 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 
 void AUltimateShooterCharacter::FireWeapon()
 {
+	if (bIsWeaponFiring)
+	{
+		return;
+	}
+	
 	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
 	if (BarrelSocket != nullptr)
 	{
@@ -145,7 +150,7 @@ void AUltimateShooterCharacter::FireWeapon()
 
 		FHitResult HitResult;
 		const FVector StartLocation = SocketTransform.GetLocation();
-		const FVector EndLocation = StartLocation + SocketTransform.GetRotation().GetForwardVector() * 10'000.0f;
+		const FVector EndLocation = StartLocation + SocketTransform.GetRotation().GetForwardVector() * WeaponFireRange;
 		FVector TrailTarget = EndLocation;
 		
 		FCollisionQueryParams CollisionQueryParams;
@@ -180,6 +185,10 @@ void AUltimateShooterCharacter::FireWeapon()
 		AnimInstance->Montage_JumpToSection(FName("StartFire"), FireAnimation);
 		AnimInstance->Montage_Play(FireAnimation);
 	}
+
+	bIsWeaponFiring = true;
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AUltimateShooterCharacter::OnFireWeaponFinished, WeaponFireRate, false);
 }
 
 void AUltimateShooterCharacter::SetupCharacterMovement() const
@@ -189,5 +198,10 @@ void AUltimateShooterCharacter::SetupCharacterMovement() const
 	CharacterMovementComponent->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
 	CharacterMovementComponent->JumpZVelocity = 600.0f;
 	CharacterMovementComponent->AirControl = 0.2f;
+}
+
+void AUltimateShooterCharacter::OnFireWeaponFinished()
+{
+	bIsWeaponFiring = false;
 }
 

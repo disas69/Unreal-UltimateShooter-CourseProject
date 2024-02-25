@@ -45,6 +45,9 @@ protected:
 
 private:
 	void SetupCharacterMovement() const;
+	void OnFireWeaponFinished();
+
+	bool bIsWeaponFiring = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -58,6 +61,12 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float LookUpRate = 45.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	float WeaponFireRange = 10000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	float WeaponFireRate = 1.0f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	class USoundBase* WeaponFireSound = nullptr;
 
