@@ -32,9 +32,6 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
-
-	SetupFollowCamera();
-	SetupFollowCharacterMovement();
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +39,8 @@ void AUltimateShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetupFollowCamera();
+	SetupFollowCharacterMovement();
 }
 
 // Called every frame
@@ -135,6 +134,47 @@ void AUltimateShooterCharacter::FireWeapon()
 	if (BarrelSocket != nullptr)
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		const FVector SocketLocation = SocketTransform.GetLocation();
+
+		// Project the crosshair to the world
+		FVector2D ViewportSize;
+		GetWorld()->GetGameViewport()->GetViewportSize(ViewportSize);
+		const FVector2d CrossLocation = FVector2D(ViewportSize.X / 2, (ViewportSize.Y / 2) - 60.f);
+
+		FVector WorldDirection;
+		FVector WorldLocation;
+		if (UGameplayStatics::DeprojectScreenToWorld(Cast<APlayerController>(GetController()), CrossLocation, WorldLocation, WorldDirection))
+		{
+			FHitResult ScreenTraceResult;
+			const FVector StartLocation = WorldLocation;
+			const FVector EndLocation = StartLocation + WorldDirection * WeaponFireRange;
+			FVector TrailTarget = EndLocation;
+
+			FCollisionQueryParams CollisionQueryParams;
+			CollisionQueryParams.AddIgnoredActor(this);
+
+			if (GetWorld()->LineTraceSingleByChannel(ScreenTraceResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, CollisionQueryParams))
+			{
+				TrailTarget = ScreenTraceResult.Location;
+					
+				AActor* HitActor = ScreenTraceResult.GetActor();
+				if (HitActor != nullptr)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
+				}
+				
+				if (ImpactParticle != nullptr)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, ScreenTraceResult.Location, ScreenTraceResult.ImpactNormal.Rotation());
+				}
+			}
+
+			if (TrailParticle != nullptr)
+			{
+				UParticleSystemComponent* Trail = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailParticle, SocketLocation, (TrailTarget - SocketLocation).Rotation());
+				Trail->SetVectorParameter("Target", TrailTarget);
+			}
+		}
 
 		if (WeaponFireFX != nullptr)
 		{
@@ -144,36 +184,6 @@ void AUltimateShooterCharacter::FireWeapon()
 		if (WeaponFireSound != nullptr)
 		{
 			UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
-		}
-
-		FHitResult HitResult;
-		const FVector StartLocation = SocketTransform.GetLocation();
-		const FVector EndLocation = StartLocation + SocketTransform.GetRotation().GetForwardVector() * WeaponFireRange;
-		FVector TrailTarget = EndLocation;
-		
-		FCollisionQueryParams CollisionQueryParams;
-		CollisionQueryParams.AddIgnoredActor(this);
-
-		if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, CollisionQueryParams))
-		{
-			TrailTarget = HitResult.Location;
-			
-			AActor* HitActor = HitResult.GetActor();
-			if (HitActor != nullptr)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
-			}
-
-			if (ImpactParticle != nullptr)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, HitResult.Location, HitResult.ImpactNormal.Rotation());
-			}
-		}
-
-		if (TrailParticle != nullptr)
-		{
-			UParticleSystemComponent* Trail = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailParticle, StartLocation, (TrailTarget - StartLocation).Rotation());
-			Trail->SetVectorParameter("Target", TrailTarget);
 		}
 	}
 
