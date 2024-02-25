@@ -33,12 +33,8 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	// Character does not rotate with the controller
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
-	
-	SetupCharacterMovement();
+	SetupFollowCamera();
+	SetupFollowCharacterMovement();
 }
 
 // Called when the game starts or when spawned
@@ -64,8 +60,8 @@ void AUltimateShooterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 		UE_LOG(LogTemp, Error, TEXT("InputDataConfig is not set in %s"), *GetName());
 		return;
 	}
-	
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	const APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 
 	LocalPlayerSubsystem->ClearAllMappings();
@@ -78,11 +74,13 @@ void AUltimateShooterCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 	Input->BindAction(InputDataConfig->LookUp, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::LookUpAtRate);
 	Input->BindAction(InputDataConfig->Jump, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::Jump);
 	Input->BindAction(InputDataConfig->Fire, ETriggerEvent::Triggered, this, &AUltimateShooterCharacter::FireWeapon);
+	Input->BindAction(InputDataConfig->Aim, ETriggerEvent::Started, this, &AUltimateShooterCharacter::StartAimingWeapon);
+	Input->BindAction(InputDataConfig->Aim, ETriggerEvent::Completed, this, &AUltimateShooterCharacter::StopAimingWeapon);
 }
 
 void AUltimateShooterCharacter::MoveForward(const FInputActionValue& Value)
 {
-	float AxisValue = Value.Get<float>();
+	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
 		// Get the forward direction based on the camera orientation and apply movement
@@ -95,7 +93,7 @@ void AUltimateShooterCharacter::MoveForward(const FInputActionValue& Value)
 
 void AUltimateShooterCharacter::MoveRight(const FInputActionValue& Value)
 {
-	float AxisValue = Value.Get<float>();
+	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
 		// Get the right direction based on the camera orientation and apply movement
@@ -108,20 +106,20 @@ void AUltimateShooterCharacter::MoveRight(const FInputActionValue& Value)
 
 void AUltimateShooterCharacter::TurnAtRate(const FInputActionValue& Value)
 {
-	float AxisValue = Value.Get<float>();
+	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
-		float TurnAmount = AxisValue * TurnRate * GetWorld()->GetDeltaSeconds();
+		const float TurnAmount = AxisValue * TurnRate * GetWorld()->GetDeltaSeconds();
 		AddControllerYawInput(TurnAmount);
 	}
 }
 
 void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 {
-	float AxisValue = Value.Get<float>();
+	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
-		float LookUpAmount = AxisValue * LookUpRate * GetWorld()->GetDeltaSeconds();
+		const float LookUpAmount = AxisValue * LookUpRate * GetWorld()->GetDeltaSeconds();
 		AddControllerPitchInput(LookUpAmount);
 	}
 }
@@ -191,13 +189,57 @@ void AUltimateShooterCharacter::FireWeapon()
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AUltimateShooterCharacter::OnFireWeaponFinished, WeaponFireRate, false);
 }
 
-void AUltimateShooterCharacter::SetupCharacterMovement() const
+void AUltimateShooterCharacter::StartAimingWeapon()
+{
+	bIsAiming = true;
+	SetupAimingCamera();
+	SetupAimingCharacterMovement();
+}
+
+void AUltimateShooterCharacter::StopAimingWeapon()
+{
+	bIsAiming = false;
+	SetupFollowCamera();
+	SetupFollowCharacterMovement();
+}
+
+void AUltimateShooterCharacter::SetupFollowCharacterMovement() const
 {
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
 	CharacterMovementComponent->bOrientRotationToMovement = true;
+	// CharacterMovementComponent->MaxWalkSpeed = 600.0f;
 	CharacterMovementComponent->RotationRate = FRotator(0.0f, 600.0f, 0.0f);
 	CharacterMovementComponent->JumpZVelocity = 600.0f;
 	CharacterMovementComponent->AirControl = 0.2f;
+}
+
+void AUltimateShooterCharacter::SetupFollowCamera()
+{
+	// Character does not rotate with the controller
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	
+	GetCameraBoom()->SocketOffset = FollowCameraOffset;
+}
+
+void AUltimateShooterCharacter::SetupAimingCharacterMovement() const
+{
+	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
+	CharacterMovementComponent->bOrientRotationToMovement = false;
+	// CharacterMovementComponent->MaxWalkSpeed = 300.0f;
+	CharacterMovementComponent->JumpZVelocity = 0.f;
+	CharacterMovementComponent->AirControl = 0.f;
+}
+
+void AUltimateShooterCharacter::SetupAimingCamera()
+{
+	// Character does rotate with the controller
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+
+	GetCameraBoom()->SocketOffset = AimCameraOffset;
 }
 
 void AUltimateShooterCharacter::OnFireWeaponFinished()

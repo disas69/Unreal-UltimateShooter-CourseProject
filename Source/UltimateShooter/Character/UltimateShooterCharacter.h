@@ -39,15 +39,21 @@ protected:
 	void TurnAtRate(const FInputActionValue& Value);
 	void LookUpAtRate(const FInputActionValue& Value);
 	void FireWeapon();
+	void StartAimingWeapon();
+	void StopAimingWeapon();
 	
 	UPROPERTY(EditAnywhere)
 	UInputDataConfig* InputDataConfig = nullptr;
 
 private:
-	void SetupCharacterMovement() const;
+	void SetupFollowCharacterMovement() const;
+	void SetupFollowCamera();
+	void SetupAimingCharacterMovement() const;
+	void SetupAimingCamera();
 	void OnFireWeaponFinished();
 
 	bool bIsWeaponFiring = false;
+	bool bIsAiming = false;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -60,6 +66,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float LookUpRate = 45.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	FVector FollowCameraOffset = FVector(0.0f, 0.0f, 0.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	FVector AimCameraOffset = FVector(0.0f, 0.0f, 0.0f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float WeaponFireRange = 10000.0f;

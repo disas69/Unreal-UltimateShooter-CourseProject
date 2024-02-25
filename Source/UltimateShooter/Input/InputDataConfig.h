@@ -38,4 +38,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UInputAction* Fire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UInputAction* Aim;
 };
