@@ -29,6 +29,8 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

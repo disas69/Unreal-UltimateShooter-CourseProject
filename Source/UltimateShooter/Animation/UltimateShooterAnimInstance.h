@@ -36,5 +36,11 @@ private:
 	bool bIsAccelerating = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	bool bIsAiming = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	float MovementOffsetYaw;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	float LastMovementOffsetYaw;
 };

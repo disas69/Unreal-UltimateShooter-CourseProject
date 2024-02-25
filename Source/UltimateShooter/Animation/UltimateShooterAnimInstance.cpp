@@ -30,7 +30,14 @@ void UUltimateShooterAnimInstance::UpdateAnimation(float DeltaSeconds)
 	bIsInAir = CharacterMovement->IsFalling();
 	bIsAccelerating = CharacterMovement->GetCurrentAcceleration().Size() > 0;
 
+	bIsAiming = UltimateShooterCharacter->IsAiming();
+	
 	FRotator AimRotation = UltimateShooterCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Velocity);
 	MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+
+	if (Velocity.Size() > 0)
+	{
+		LastMovementOffsetYaw = MovementOffsetYaw;
+	}
 }
