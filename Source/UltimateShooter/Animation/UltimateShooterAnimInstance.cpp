@@ -4,6 +4,7 @@
 #include "UltimateShooterAnimInstance.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "UltimateShooter/Character/UltimateShooterCharacter.h"
 
 void UUltimateShooterAnimInstance::NativeInitializeAnimation()
@@ -28,4 +29,8 @@ void UUltimateShooterAnimInstance::UpdateAnimation(float DeltaSeconds)
 	UCharacterMovementComponent* CharacterMovement = UltimateShooterCharacter->GetCharacterMovement();
 	bIsInAir = CharacterMovement->IsFalling();
 	bIsAccelerating = CharacterMovement->GetCurrentAcceleration().Size() > 0;
+
+	FRotator AimRotation = UltimateShooterCharacter->GetBaseAimRotation();
+	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Velocity);
+	MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 }
