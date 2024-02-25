@@ -41,6 +41,11 @@ protected:
 	void FireWeapon();
 	void StartAimingWeapon();
 	void StopAimingWeapon();
+
+	// Weapon handlers
+	void OnFireWeaponStarted();
+	void FireWeaponTrace(const FVector& WeaponLocation, FHitResult& HitResult, FVector& TraceEndLocation) const;
+	void OnFireWeaponFinished();
 	
 	UPROPERTY(EditAnywhere)
 	UInputDataConfig* InputDataConfig = nullptr;
@@ -50,7 +55,6 @@ private:
 	void SetupFollowCamera();
 	void SetupAimingCharacterMovement() const;
 	void SetupAimingCamera();
-	void OnFireWeaponFinished();
 
 	bool bIsWeaponFiring = false;
 	bool bIsAiming = false;

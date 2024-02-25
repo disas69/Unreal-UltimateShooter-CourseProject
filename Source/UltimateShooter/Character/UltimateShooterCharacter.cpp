@@ -129,74 +129,43 @@ void AUltimateShooterCharacter::FireWeapon()
 	{
 		return;
 	}
-	
+
+	bIsWeaponFiring = true;
+
 	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName("BarrelSocket");
 	if (BarrelSocket != nullptr)
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
 		const FVector SocketLocation = SocketTransform.GetLocation();
 
-		// Project the crosshair to the world
-		FVector2D ViewportSize;
-		GetWorld()->GetGameViewport()->GetViewportSize(ViewportSize);
-		const FVector2d CrossLocation = FVector2D(ViewportSize.X / 2, (ViewportSize.Y / 2) - 60.f);
+		FHitResult FireWeaponHitResult;
+		FVector FireWeaponTraceEndLocation;
+		FireWeaponTrace(SocketLocation, FireWeaponHitResult, FireWeaponTraceEndLocation);
 
-		FVector WorldDirection;
-		FVector WorldLocation;
-		if (UGameplayStatics::DeprojectScreenToWorld(Cast<APlayerController>(GetController()), CrossLocation, WorldLocation, WorldDirection))
+		AActor* HitActor = FireWeaponHitResult.GetActor();
+		if (HitActor != nullptr)
 		{
-			FHitResult ScreenTraceResult;
-			const FVector StartLocation = WorldLocation;
-			const FVector EndLocation = StartLocation + WorldDirection * WeaponFireRange;
-			FVector TrailTarget = EndLocation;
-
-			FCollisionQueryParams CollisionQueryParams;
-			CollisionQueryParams.AddIgnoredActor(this);
-
-			if (GetWorld()->LineTraceSingleByChannel(ScreenTraceResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, CollisionQueryParams))
-			{
-				TrailTarget = ScreenTraceResult.Location;
-					
-				AActor* HitActor = ScreenTraceResult.GetActor();
-				if (HitActor != nullptr)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
-				}
+			UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
+		}
 				
-				if (ImpactParticle != nullptr)
-				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, ScreenTraceResult.Location, ScreenTraceResult.ImpactNormal.Rotation());
-				}
-			}
+		if (ImpactParticle != nullptr)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, FireWeaponHitResult.Location, FireWeaponHitResult.ImpactNormal.Rotation());
+		}
 
-			if (TrailParticle != nullptr)
-			{
-				UParticleSystemComponent* Trail = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailParticle, SocketLocation, (TrailTarget - SocketLocation).Rotation());
-				Trail->SetVectorParameter("Target", TrailTarget);
-			}
+		if (TrailParticle != nullptr)
+		{
+			UParticleSystemComponent* Trail = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TrailParticle, SocketLocation, (FireWeaponTraceEndLocation - SocketLocation).Rotation());
+			Trail->SetVectorParameter("Target", FireWeaponTraceEndLocation);
 		}
 
 		if (WeaponFireFX != nullptr)
 		{
-			UGameplayStatics::SpawnEmitterAttached(WeaponFireFX, GetMesh(), BarrelSocket->GetFName(), SocketTransform.GetLocation(), SocketTransform.GetRotation().Rotator(), EAttachLocation::KeepWorldPosition);
-		}
-
-		if (WeaponFireSound != nullptr)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
+			UGameplayStatics::SpawnEmitterAttached(WeaponFireFX, GetMesh(), BarrelSocket->GetFName(), SocketLocation, SocketTransform.GetRotation().Rotator(), EAttachLocation::KeepWorldPosition);
 		}
 	}
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance != nullptr && FireAnimation != nullptr)
-	{
-		AnimInstance->Montage_JumpToSection(FName("StartFire"), FireAnimation);
-		AnimInstance->Montage_Play(FireAnimation);
-	}
-
-	bIsWeaponFiring = true;
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AUltimateShooterCharacter::OnFireWeaponFinished, WeaponFireRate, false);
+	OnFireWeaponStarted();
 }
 
 void AUltimateShooterCharacter::StartAimingWeapon()
@@ -211,6 +180,72 @@ void AUltimateShooterCharacter::StopAimingWeapon()
 	bIsAiming = false;
 	SetupFollowCamera();
 	SetupFollowCharacterMovement();
+}
+
+void AUltimateShooterCharacter::OnFireWeaponStarted()
+{
+	// Play the fire sound
+	if (WeaponFireSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
+	}
+
+	// Play the fire animation montage
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr && FireAnimation != nullptr)
+	{
+		AnimInstance->Montage_JumpToSection(FName("StartFire"), FireAnimation);
+		AnimInstance->Montage_Play(FireAnimation);
+	}
+
+	// Set a fire rate timer to call OnFireWeaponFinished
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AUltimateShooterCharacter::OnFireWeaponFinished, WeaponFireRate, false);
+}
+
+void AUltimateShooterCharacter::FireWeaponTrace(const FVector& WeaponLocation, FHitResult& HitResult, FVector& TraceEndLocation) const
+{
+	// Get the crosshair location
+	FVector2D ViewportSize;
+	GetWorld()->GetGameViewport()->GetViewportSize(ViewportSize);
+	const FVector2D CrossLocation = FVector2D(ViewportSize.X / 2, (ViewportSize.Y / 2) - 60.f);
+
+	FVector WorldDirection;
+	FVector WorldLocation;
+
+	// Project the crosshair location to the world
+	UGameplayStatics::DeprojectScreenToWorld(Cast<APlayerController>(GetController()), CrossLocation, WorldLocation, WorldDirection);
+
+	// Trace from the crosshair to the target location
+	FHitResult ScreenTraceResult;
+	const FVector StartLocation = WorldLocation;
+	const FVector EndLocation = StartLocation + WorldDirection * WeaponFireRange;
+	TraceEndLocation = EndLocation;
+
+	FCollisionQueryParams CollisionQueryParams;
+	CollisionQueryParams.AddIgnoredActor(this);
+
+	if (GetWorld()->LineTraceSingleByChannel(ScreenTraceResult, StartLocation, EndLocation, ECollisionChannel::ECC_Visibility, CollisionQueryParams))
+	{
+		HitResult = ScreenTraceResult;
+		TraceEndLocation = ScreenTraceResult.Location;
+	}
+		
+	// Trace from the weapon to the target location to ensure there's no blocking object in between
+	FHitResult WeaponTraceResult;
+	const FVector WeaponStartLocation = WeaponLocation;
+	const FVector WeaponEndLocation = TraceEndLocation;
+
+	if (GetWorld()->LineTraceSingleByChannel(WeaponTraceResult, WeaponStartLocation, WeaponEndLocation, ECollisionChannel::ECC_Visibility, CollisionQueryParams))
+	{
+		HitResult = WeaponTraceResult;
+		TraceEndLocation = WeaponTraceResult.Location;
+	}
+}
+
+void AUltimateShooterCharacter::OnFireWeaponFinished()
+{
+	bIsWeaponFiring = false;
 }
 
 void AUltimateShooterCharacter::SetupFollowCharacterMovement() const
@@ -250,10 +285,5 @@ void AUltimateShooterCharacter::SetupAimingCamera()
 	bUseControllerRotationRoll = false;
 
 	GetCameraBoom()->SocketOffset = AimCameraOffset;
-}
-
-void AUltimateShooterCharacter::OnFireWeaponFinished()
-{
-	bIsWeaponFiring = false;
 }
 
