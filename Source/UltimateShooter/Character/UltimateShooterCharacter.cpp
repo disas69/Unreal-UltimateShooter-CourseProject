@@ -47,6 +47,8 @@ void AUltimateShooterCharacter::BeginPlay()
 void AUltimateShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UpdateCameraTransition(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -248,6 +250,15 @@ void AUltimateShooterCharacter::OnFireWeaponFinished()
 	bIsWeaponFiring = false;
 }
 
+void AUltimateShooterCharacter::UpdateCameraTransition(float DeltaTime) const
+{
+	const FVector CameraCurrentOffset = FMath::VInterpTo(CameraBoom->SocketOffset, CameraTargetOffset, DeltaTime, CameraTransitionSpeed);
+	CameraBoom->SocketOffset = CameraCurrentOffset;
+
+	const float CameraCurrentFOV = FMath::FInterpTo(FollowCamera->FieldOfView, CameraTargetFOV, DeltaTime, CameraTransitionSpeed);
+	FollowCamera->SetFieldOfView(CameraCurrentFOV);
+}
+
 void AUltimateShooterCharacter::SetupFollowCharacterMovement() const
 {
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
@@ -265,7 +276,8 @@ void AUltimateShooterCharacter::SetupFollowCamera()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	
-	GetCameraBoom()->SocketOffset = FollowCameraOffset;
+	CameraTargetOffset = FollowCameraOffset;
+	CameraTargetFOV = FollowCameraFOV;
 }
 
 void AUltimateShooterCharacter::SetupAimingCharacterMovement() const
@@ -284,6 +296,7 @@ void AUltimateShooterCharacter::SetupAimingCamera()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 
-	GetCameraBoom()->SocketOffset = AimCameraOffset;
+	CameraTargetOffset = AimCameraOffset;
+	CameraTargetFOV = AimCameraFOV;
 }
 
