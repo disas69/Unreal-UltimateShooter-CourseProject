@@ -125,7 +125,7 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 
 void AUltimateShooterCharacter::FireWeapon()
 {
-	if (bIsWeaponFiring)
+	if (!IsAiming() || bIsWeaponFiring)
 	{
 		return;
 	}
@@ -148,7 +148,7 @@ void AUltimateShooterCharacter::FireWeapon()
 			UE_LOG(LogTemp, Warning, TEXT("Hit actor: %s"), *HitActor->GetName());
 		}
 				
-		if (ImpactParticle != nullptr)
+		if (ImpactParticle != nullptr && FireWeaponHitResult.bBlockingHit)
 		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, FireWeaponHitResult.Location, FireWeaponHitResult.ImpactNormal.Rotation());
 		}

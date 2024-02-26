@@ -29,6 +29,7 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 
 protected:
