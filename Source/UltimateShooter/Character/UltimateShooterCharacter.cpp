@@ -110,7 +110,9 @@ void AUltimateShooterCharacter::TurnAtRate(const FInputActionValue& Value)
 	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
-		const float TurnAmount = AxisValue * TurnRate * GetWorld()->GetDeltaSeconds();
+		// TODO: Refactor -> create CameraFocusComponent
+		const float Sensitivity = bIsAiming ? AimCameraSensitivity : FollowCameraSensitivity;
+		const float TurnAmount = AxisValue * TurnRate * Sensitivity * GetWorld()->GetDeltaSeconds();
 		AddControllerYawInput(TurnAmount);
 	}
 }
@@ -120,7 +122,8 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
-		const float LookUpAmount = AxisValue * LookUpRate * GetWorld()->GetDeltaSeconds();
+		const float Sensitivity = bIsAiming ? AimCameraSensitivity : FollowCameraSensitivity;
+		const float LookUpAmount = AxisValue * LookUpRate * Sensitivity * GetWorld()->GetDeltaSeconds();
 		AddControllerPitchInput(LookUpAmount);
 	}
 }
@@ -193,12 +196,7 @@ void AUltimateShooterCharacter::OnFireWeaponStarted()
 	}
 
 	// Play the fire animation montage
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance != nullptr && FireAnimation != nullptr)
-	{
-		AnimInstance->Montage_JumpToSection(FName("StartFire"), FireAnimation);
-		AnimInstance->Montage_Play(FireAnimation);
-	}
+	PlayAnimMontage(FireAnimation, 1.0f, FName("StartFire"));
 
 	// Set a fire rate timer to call OnFireWeaponFinished
 	FTimerHandle TimerHandle;
