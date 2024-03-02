@@ -30,6 +30,7 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE UCameraStateComponent* GetCameraState() const { return CameraState; }
+	FORCEINLINE FVector2D GetMovementInput() const { return MovementInput; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
@@ -63,8 +64,7 @@ private:
 
 	bool bIsWeaponFiring = false;
 	bool bIsAiming = false;
-	FVector CameraTargetOffset = FVector(0.0f, 0.0f, 0.0f);
-	float CameraTargetFOV = 90.0f;
+	FVector2D MovementInput = FVector2D::ZeroVector;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;

@@ -11,33 +11,37 @@ void UUltimateShooterAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	UltimateShooterCharacter = Cast<AUltimateShooterCharacter>(TryGetPawnOwner());
+	Character = Cast<AUltimateShooterCharacter>(TryGetPawnOwner());
 }
 
 void UUltimateShooterAnimInstance::UpdateAnimation(float DeltaSeconds)
 {
-	if (UltimateShooterCharacter == nullptr)
+	if (Character == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("UltimateShooterCharacter is not set in %s"), *GetName());
 		return;
 	}
 
-	FVector Velocity = UltimateShooterCharacter->GetVelocity();
+	FVector Velocity = Character->GetVelocity();
 	Velocity.Z = 0;
 	Speed = Velocity.Size();
 
-	UCharacterMovementComponent* CharacterMovement = UltimateShooterCharacter->GetCharacterMovement();
+	const UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
 	bIsInAir = CharacterMovement->IsFalling();
 	bIsAccelerating = CharacterMovement->GetCurrentAcceleration().Size() > 0;
 
-	bIsAiming = UltimateShooterCharacter->IsAiming();
-	
-	FRotator AimRotation = UltimateShooterCharacter->GetBaseAimRotation();
-	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Velocity);
+	bIsAiming = Character->IsAiming();
+
+	const FRotator AimRotation = Character->GetBaseAimRotation();
+	const FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Velocity);
 	MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
 
 	if (Velocity.Size() > 0)
 	{
 		LastMovementOffsetYaw = MovementOffsetYaw;
 	}
+
+	const FVector2D MovementInput = Character->GetMovementInput();
+	const float MaxInput = FMath::Max(FMath::Abs(MovementInput.X), FMath::Abs(MovementInput.Y));
+	ScaledPlayRate = FMath::Clamp(MaxInput, 0.3f, 1.0f);
 }
