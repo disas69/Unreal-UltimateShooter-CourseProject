@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UltimateShooterCharacter.generated.h"
 
+class UCameraStateComponent;
 struct FInputActionValue;
 class UCameraComponent;
 class USpringArmComponent;
@@ -28,6 +29,7 @@ public:
 
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE UCameraStateComponent* GetCameraState() const { return CameraState; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsAiming() const { return bIsAiming; }
@@ -54,11 +56,10 @@ protected:
 	UInputDataConfig* InputDataConfig = nullptr;
 
 private:
-	void UpdateCameraTransition(float DeltaTime) const;
 	void SetupFollowCharacterMovement() const;
-	void SetupFollowCamera();
+	void SetupFollowCamera(bool bInstant);
 	void SetupAimingCharacterMovement() const;
-	void SetupAimingCamera();
+	void SetupAimingCamera(bool bInstant);
 
 	bool bIsWeaponFiring = false;
 	bool bIsAiming = false;
@@ -71,32 +72,14 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	UCameraStateComponent* CameraState;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float TurnRate = 45.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float LookUpRate = 45.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float CameraTransitionSpeed = 10.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	FVector FollowCameraOffset = FVector(0.0f, 0.0f, 0.0f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float FollowCameraFOV = 90.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float FollowCameraSensitivity = 1.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	FVector AimCameraOffset = FVector(0.0f, 0.0f, 0.0f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float AimCameraFOV = 60.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"), meta = (ClampMin = "0.0", ClampMax = "1.0"))
-	float AimCameraSensitivity = 0.8f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float WeaponFireRange = 10000.0f;

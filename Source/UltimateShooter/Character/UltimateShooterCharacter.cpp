@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "UltimateShooter/Camera/CameraStateComponent.h"
 
 #include "UltimateShooter/Input/InputDataConfig.h"
 
@@ -27,11 +28,13 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	CameraBoom->SetupAttachment(RootComponent.Get());
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
-
+	
 	// Camera follows the CameraBoom
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	CameraState = CreateDefaultSubobject<UCameraStateComponent>(TEXT("CameraState"));
 }
 
 // Called when the game starts or when spawned
@@ -39,7 +42,7 @@ void AUltimateShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupFollowCamera();
+	SetupFollowCamera(true);
 	SetupFollowCharacterMovement();
 }
 
@@ -47,8 +50,6 @@ void AUltimateShooterCharacter::BeginPlay()
 void AUltimateShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	UpdateCameraTransition(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -110,9 +111,7 @@ void AUltimateShooterCharacter::TurnAtRate(const FInputActionValue& Value)
 	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
-		// TODO: Refactor -> create CameraFocusComponent
-		const float Sensitivity = bIsAiming ? AimCameraSensitivity : FollowCameraSensitivity;
-		const float TurnAmount = AxisValue * TurnRate * Sensitivity * GetWorld()->GetDeltaSeconds();
+		const float TurnAmount = AxisValue * TurnRate * CameraState->GetCurrentSensitivity() * GetWorld()->GetDeltaSeconds();
 		AddControllerYawInput(TurnAmount);
 	}
 }
@@ -122,8 +121,7 @@ void AUltimateShooterCharacter::LookUpAtRate(const FInputActionValue& Value)
 	const float AxisValue = Value.Get<float>();
 	if (FMath::Abs(AxisValue) >= 0.1f)
 	{
-		const float Sensitivity = bIsAiming ? AimCameraSensitivity : FollowCameraSensitivity;
-		const float LookUpAmount = AxisValue * LookUpRate * Sensitivity * GetWorld()->GetDeltaSeconds();
+		const float LookUpAmount = AxisValue * LookUpRate * CameraState->GetCurrentSensitivity() * GetWorld()->GetDeltaSeconds();
 		AddControllerPitchInput(LookUpAmount);
 	}
 }
@@ -176,14 +174,14 @@ void AUltimateShooterCharacter::FireWeapon()
 void AUltimateShooterCharacter::StartAimingWeapon()
 {
 	bIsAiming = true;
-	SetupAimingCamera();
+	SetupAimingCamera(false);
 	SetupAimingCharacterMovement();
 }
 
 void AUltimateShooterCharacter::StopAimingWeapon()
 {
 	bIsAiming = false;
-	SetupFollowCamera();
+	SetupFollowCamera(false);
 	SetupFollowCharacterMovement();
 }
 
@@ -248,15 +246,6 @@ void AUltimateShooterCharacter::OnFireWeaponFinished()
 	bIsWeaponFiring = false;
 }
 
-void AUltimateShooterCharacter::UpdateCameraTransition(float DeltaTime) const
-{
-	const FVector CameraCurrentOffset = FMath::VInterpTo(CameraBoom->SocketOffset, CameraTargetOffset, DeltaTime, CameraTransitionSpeed);
-	CameraBoom->SocketOffset = CameraCurrentOffset;
-
-	const float CameraCurrentFOV = FMath::FInterpTo(FollowCamera->FieldOfView, CameraTargetFOV, DeltaTime, CameraTransitionSpeed);
-	FollowCamera->SetFieldOfView(CameraCurrentFOV);
-}
-
 void AUltimateShooterCharacter::SetupFollowCharacterMovement() const
 {
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
@@ -267,15 +256,14 @@ void AUltimateShooterCharacter::SetupFollowCharacterMovement() const
 	CharacterMovementComponent->AirControl = 0.2f;
 }
 
-void AUltimateShooterCharacter::SetupFollowCamera()
+void AUltimateShooterCharacter::SetupFollowCamera(bool bInstant)
 {
 	// Character does not rotate with the controller
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
-	
-	CameraTargetOffset = FollowCameraOffset;
-	CameraTargetFOV = FollowCameraFOV;
+
+	CameraState->SetCameraState(ECameraState::Default, bInstant);
 }
 
 void AUltimateShooterCharacter::SetupAimingCharacterMovement() const
@@ -287,14 +275,12 @@ void AUltimateShooterCharacter::SetupAimingCharacterMovement() const
 	CharacterMovementComponent->AirControl = 0.f;
 }
 
-void AUltimateShooterCharacter::SetupAimingCamera()
+void AUltimateShooterCharacter::SetupAimingCamera(bool bInstant)
 {
 	// Character does rotate with the controller
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 
-	CameraTargetOffset = AimCameraOffset;
-	CameraTargetFOV = AimCameraFOV;
+	CameraState->SetCameraState(ECameraState::ZoomIn, bInstant);
 }
-
