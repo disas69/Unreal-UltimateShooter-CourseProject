@@ -202,6 +202,12 @@ void AUltimateShooterCharacter::OnFireWeaponStarted()
 	// Play the fire animation montage
 	PlayAnimMontage(FireAnimation, 1.0f, FName("StartFire"));
 
+	// Spread the crosshair
+	if (Crosshair != nullptr)
+	{
+		Crosshair->SetCrosshairSpread(0.8f);
+	}
+
 	// Set a fire rate timer to call OnFireWeaponFinished
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AUltimateShooterCharacter::OnFireWeaponFinished, WeaponFireRate, false);

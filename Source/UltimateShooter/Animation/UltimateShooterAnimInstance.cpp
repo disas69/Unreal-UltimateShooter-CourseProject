@@ -41,7 +41,6 @@ void UUltimateShooterAnimInstance::UpdateAnimation(float DeltaSeconds)
 		LastMovementOffsetYaw = MovementOffsetYaw;
 	}
 
-	const FVector2D MovementInput = Character->GetMovementInput();
-	const float MaxInput = FMath::Max(FMath::Abs(MovementInput.X), FMath::Abs(MovementInput.Y));
-	ScaledPlayRate = FMath::Clamp(MaxInput, 0.3f, 1.0f);
+	const float MaxVelocity = Character->GetCharacterMovement()->GetMaxSpeed();
+	ScaledPlayRate = FMath::Clamp(Velocity.Size2D()/MaxVelocity, 0.3f, 1.0f);
 }
