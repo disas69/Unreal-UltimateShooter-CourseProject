@@ -13,6 +13,7 @@
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "UltimateShooter/Camera/CameraStateComponent.h"
+#include "UltimateShooter/Crosshair/CrosshairComponent.h"
 
 #include "UltimateShooter/Input/InputDataConfig.h"
 
@@ -35,6 +36,7 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 
 	CameraState = CreateDefaultSubobject<UCameraStateComponent>(TEXT("CameraState"));
+	Crosshair = CreateDefaultSubobject<UCrosshairComponent>(TEXT("Crosshair"));
 }
 
 // Called when the game starts or when spawned
@@ -208,9 +210,7 @@ void AUltimateShooterCharacter::OnFireWeaponStarted()
 void AUltimateShooterCharacter::FireWeaponTrace(const FVector& WeaponLocation, FHitResult& HitResult, FVector& TraceEndLocation) const
 {
 	// Get the crosshair location
-	FVector2D ViewportSize;
-	GetWorld()->GetGameViewport()->GetViewportSize(ViewportSize);
-	const FVector2D CrossLocation = FVector2D(ViewportSize.X / 2, (ViewportSize.Y / 2) - 60.f);
+	const FVector2D CrossLocation = Crosshair->GetLocation();
 
 	FVector WorldDirection;
 	FVector WorldLocation;

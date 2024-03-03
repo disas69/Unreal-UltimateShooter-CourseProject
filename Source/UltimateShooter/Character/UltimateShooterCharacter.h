@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "UltimateShooterCharacter.generated.h"
 
+class UCrosshairComponent;
 class UCameraStateComponent;
 struct FInputActionValue;
 class UCameraComponent;
@@ -33,7 +34,10 @@ public:
 	FORCEINLINE FVector2D GetMovementInput() const { return MovementInput; }
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE bool IsAiming() const { return bIsAiming; }
+	bool IsAiming() const { return bIsAiming; }
+
+	UFUNCTION(BlueprintCallable)
+	UCrosshairComponent* GetCrosshair() const { return Crosshair; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -74,6 +78,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraStateComponent* CameraState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+	UCrosshairComponent* Crosshair;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float TurnRate = 45.0f;
