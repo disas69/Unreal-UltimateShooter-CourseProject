@@ -281,7 +281,7 @@ void AUltimateShooterCharacter::SetupAimingCharacterMovement() const
 	UCharacterMovementComponent* CharacterMovementComponent = GetCharacterMovement();
 	CharacterMovementComponent->bOrientRotationToMovement = false;
 	// CharacterMovementComponent->MaxWalkSpeed = 300.0f;
-	CharacterMovementComponent->JumpZVelocity = 0.f;
+	CharacterMovementComponent->JumpZVelocity = 600.0f;
 	CharacterMovementComponent->AirControl = 0.f;
 }
 
