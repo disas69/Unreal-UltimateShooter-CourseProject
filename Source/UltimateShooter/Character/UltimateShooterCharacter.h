@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "UltimateShooter/StateMachine/CharacterStateMachineComponent.h"
 #include "UltimateShooterCharacter.generated.h"
 
+class UCharacterStateMachineComponent;
 class UCrosshairComponent;
 class UCameraStateComponent;
 struct FInputActionValue;
@@ -34,10 +36,19 @@ public:
 	FORCEINLINE FVector2D GetMovementInput() const { return MovementInput; }
 
 	UFUNCTION(BlueprintCallable)
-	bool IsAiming() const { return bIsAiming; }
+	bool IsAiming() const { return StateMachine->GetCurrentState() == ECharacterState::Aiming; }
 
 	UFUNCTION(BlueprintCallable)
 	UCrosshairComponent* GetCrosshair() const { return Crosshair; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* FireAnimation = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	float WeaponFireRange = 10000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	float WeaponFireRate = 1.0f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -48,27 +59,18 @@ protected:
 	void MoveRight(const FInputActionValue& Value);
 	void TurnAtRate(const FInputActionValue& Value);
 	void LookUpAtRate(const FInputActionValue& Value);
-	void FireWeapon();
+	void PerformAction();
 	void StartAimingWeapon();
 	void StopAimingWeapon();
-
-	// Weapon handlers
-	void OnFireWeaponStarted();
-	void FireWeaponTrace(const FVector& WeaponLocation, FHitResult& HitResult, FVector& TraceEndLocation) const;
-	void OnFireWeaponFinished();
 	
 	UPROPERTY(EditAnywhere)
 	UInputDataConfig* InputDataConfig = nullptr;
 
 private:
-	void SetupFollowCharacterMovement() const;
-	void SetupFollowCamera(bool bInstant);
-	void SetupAimingCharacterMovement() const;
-	void SetupAimingCamera(bool bInstant);
-
-	bool bIsWeaponFiring = false;
-	bool bIsAiming = false;
 	FVector2D MovementInput = FVector2D::ZeroVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State Machine", meta = (AllowPrivateAccess = "true"))
+	UCharacterStateMachineComponent* StateMachine = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
@@ -87,21 +89,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float LookUpRate = 45.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	float WeaponFireRange = 10000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	float WeaponFireRate = 1.0f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	class USoundBase* WeaponFireSound = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	class UParticleSystem* WeaponFireFX = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	class UAnimMontage* FireAnimation = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* ImpactParticle = nullptr;
