@@ -36,22 +36,12 @@ public:
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE UCameraStateComponent* GetCameraState() const { return CameraState; }
-	FORCEINLINE FVector2D GetMovementInput() const { return MovementInput; }
 
 	UFUNCTION(BlueprintCallable)
 	bool IsAiming() const { return StateMachine->GetCurrentState() == ECharacterState::Aiming; }
 
 	UFUNCTION(BlueprintCallable)
 	UCrosshairComponent* GetCrosshair() const { return Crosshair; }
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* FireAnimation = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	float WeaponFireRange = 10000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	float WeaponFireRate = 1.0f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -70,12 +60,10 @@ protected:
 	UInputDataConfig* InputDataConfig = nullptr;
 
 private:
-	FVector2D MovementInput = FVector2D::ZeroVector;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State Machine", meta = (AllowPrivateAccess = "true"))
 	UCharacterStateMachineComponent* StateMachine = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State Machine", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	UWeaponHandlerComponent* WeaponHandler = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -95,16 +83,4 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	float LookUpRate = 45.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	class USoundBase* WeaponFireSound = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	class UParticleSystem* WeaponFireFX = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* ImpactParticle = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* TrailParticle = nullptr;
 };

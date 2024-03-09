@@ -91,8 +91,6 @@ void AUltimateShooterCharacter::MoveForward(const FInputActionValue& Value)
 		Direction.Normalize();
 		AddMovementInput(Direction, AxisValue);
 	}
-
-	MovementInput.X = AxisValue;
 }
 
 void AUltimateShooterCharacter::MoveRight(const FInputActionValue& Value)
@@ -106,8 +104,6 @@ void AUltimateShooterCharacter::MoveRight(const FInputActionValue& Value)
 		Direction.Normalize();
 		AddMovementInput(Direction, AxisValue);
 	}
-
-	MovementInput.Y = AxisValue;
 }
 
 void AUltimateShooterCharacter::TurnAtRate(const FInputActionValue& Value)
