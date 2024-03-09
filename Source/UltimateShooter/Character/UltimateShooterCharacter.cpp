@@ -13,6 +13,7 @@
 
 #include "UltimateShooter/Input/InputDataConfig.h"
 #include "UltimateShooter/StateMachine/CharacterStateMachineComponent.h"
+#include "UltimateShooter/Weapon/WeaponHandlerComponent.h"
 
 
 // Sets default values
@@ -22,6 +23,7 @@ AUltimateShooterCharacter::AUltimateShooterCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	StateMachine = CreateDefaultSubobject<UCharacterStateMachineComponent>(TEXT("StateMachine"));
+	WeaponHandler = CreateDefaultSubobject<UWeaponHandlerComponent>(TEXT("WeaponHandler"));
 
 	// CameraBoom follows the controller rotation
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));

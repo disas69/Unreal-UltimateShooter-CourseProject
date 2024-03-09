@@ -7,6 +7,7 @@
 #include "UltimateShooter/StateMachine/CharacterStateMachineComponent.h"
 #include "UltimateShooterCharacter.generated.h"
 
+class UWeaponHandlerComponent;
 class UCharacterStateMachineComponent;
 class UCrosshairComponent;
 class UCameraStateComponent;
@@ -28,8 +29,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+	FORCEINLINE UCharacterStateMachineComponent* GetStateMachine() const { return StateMachine; }
+	FORCEINLINE UWeaponHandlerComponent* GetWeaponHandler() const { return WeaponHandler; }
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE UCameraStateComponent* GetCameraState() const { return CameraState; }
@@ -42,7 +45,7 @@ public:
 	UCrosshairComponent* GetCrosshair() const { return Crosshair; }
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	class UAnimMontage* FireAnimation = nullptr;
+	UAnimMontage* FireAnimation = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	float WeaponFireRange = 10000.0f;
@@ -71,6 +74,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State Machine", meta = (AllowPrivateAccess = "true"))
 	UCharacterStateMachineComponent* StateMachine = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State Machine", meta = (AllowPrivateAccess = "true"))
+	UWeaponHandlerComponent* WeaponHandler = nullptr;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
