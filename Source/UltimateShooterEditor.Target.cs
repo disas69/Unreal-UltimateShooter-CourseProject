@@ -1,11 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
-using System.Collections.Generic;
 
 public class UltimateShooterEditorTarget : TargetRules
 {
-	public UltimateShooterEditorTarget( TargetInfo Target) : base(Target)
+	public UltimateShooterEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;

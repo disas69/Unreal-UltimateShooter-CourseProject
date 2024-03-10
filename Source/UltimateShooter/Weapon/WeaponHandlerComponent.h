@@ -9,39 +9,39 @@
 class AUltimateShooterCharacter;
 class AWeapon;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ULTIMATESHOOTER_API UWeaponHandlerComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	UWeaponHandlerComponent();
+    // Sets default values for this component's properties
+    UWeaponHandlerComponent();
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    // Called every frame
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void FireWeapon();
+    void FireWeapon();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    // Called when the game starts
+    virtual void BeginPlay() override;
 
 private:
-	bool bIsWeaponFiring = false;
-	float FireWeaponStartTime = 0.0f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AWeapon> WeaponClass = nullptr;
+    bool bIsWeaponFiring = false;
+    float FireWeaponStartTime = 0.0f;
 
-	UPROPERTY()
-	AUltimateShooterCharacter* Character = nullptr;
-	
-	UPROPERTY()
-	AWeapon* Weapon = nullptr;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+    TSubclassOf<AWeapon> WeaponClass = nullptr;
 
-	// Weapon handlers
-	void OnFireWeaponStarted();
-	void FireWeaponTrace(const FVector& WeaponLocation, FHitResult& HitResult, FVector& TraceEndLocation) const;
-	void OnFireWeaponFinished();
+    UPROPERTY()
+    AUltimateShooterCharacter* Character = nullptr;
+
+    UPROPERTY()
+    AWeapon* Weapon = nullptr;
+
+    // Weapon handlers
+    void OnFireWeaponStarted();
+    void FireWeaponTrace(const FVector& WeaponLocation, FHitResult& HitResult, FVector& TraceEndLocation) const;
+    void OnFireWeaponFinished();
 };

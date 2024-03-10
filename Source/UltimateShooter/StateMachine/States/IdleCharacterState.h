@@ -8,9 +8,9 @@
 class FIdleCharacterState final : public FCharacterState
 {
 public:
-	virtual void Enter(AUltimateShooterCharacter* Character) override;
+    virtual void Enter(AUltimateShooterCharacter* Character) override;
 
 private:
-	void SetupCamera(AUltimateShooterCharacter* Character);
-	void SetupMovement(const AUltimateShooterCharacter* Character);
+    void SetupCamera(AUltimateShooterCharacter* Character);
+    void SetupMovement(const AUltimateShooterCharacter* Character);
 };

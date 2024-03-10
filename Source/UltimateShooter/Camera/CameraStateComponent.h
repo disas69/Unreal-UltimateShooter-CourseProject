@@ -10,43 +10,43 @@
 class AUltimateShooterCharacter;
 struct FCameraStateConfig;
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ULTIMATESHOOTER_API UCameraStateComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
-	UCameraStateComponent();
+    // Sets default values for this component's properties
+    UCameraStateComponent();
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE ECameraState GetCurrentState() const { return CurrentState; }
-	FORCEINLINE float GetCurrentSensitivity() const { return CurrentSensitivity; }
+    FORCEINLINE ECameraState GetCurrentState() const { return CurrentState; }
+    FORCEINLINE float GetCurrentSensitivity() const { return CurrentSensitivity; }
 
-	void SetCameraState(ECameraState NewState, bool bInstant = false);
+    void SetCameraState(ECameraState NewState, bool bInstant = false);
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    // Called when the game starts
+    virtual void BeginPlay() override;
 
 private:
-	bool bIsInitialized = false;
+    bool bIsInitialized = false;
 
-	const FCameraStateConfig* GetCameraStateConfig(ECameraState State) const;
+    const FCameraStateConfig* GetCameraStateConfig(ECameraState State) const;
 
-	UPROPERTY()
-	AUltimateShooterCharacter* Character = nullptr;
+    UPROPERTY()
+    AUltimateShooterCharacter* Character = nullptr;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	ECameraState CurrentState = ECameraState::Default;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+    ECameraState CurrentState = ECameraState::Default;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float CurrentSensitivity = 1.0f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+    float CurrentSensitivity = 1.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	float CameraTransitionSpeed = 10.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+    float CameraTransitionSpeed = 10.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
-	TArray<FCameraStateConfig> CameraStates;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+    TArray<FCameraStateConfig> CameraStates;
 };

@@ -10,35 +10,35 @@ class UInputMappingContext;
 class UInputAction;
 
 /**
- * 
+ *
  */
 UCLASS()
 class ULTIMATESHOOTER_API UInputDataConfig : public UDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputMappingContext* InputMappingContext;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputMappingContext* InputMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* MoveForward;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* MoveForward;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* MoveRight;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* TurnRight;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* MoveRight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* LookUp;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* TurnRight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* Jump;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* Fire;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* LookUp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UInputAction* Aim;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* Jump;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* Fire;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UInputAction* Aim;
 };

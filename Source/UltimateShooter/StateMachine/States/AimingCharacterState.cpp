@@ -10,34 +10,34 @@
 
 void FAimingCharacterState::Enter(AUltimateShooterCharacter* Character)
 {
-	FCharacterState::Enter(Character);
+    FCharacterState::Enter(Character);
 
-	SetupCamera(Character);
-	SetupMovement(Character);
+    SetupCamera(Character);
+    SetupMovement(Character);
 }
 
 void FAimingCharacterState::HandleInput(AUltimateShooterCharacter* Character)
 {
-	FCharacterState::HandleInput(Character);
-	
-	Character->GetWeaponHandler()->FireWeapon();
+    FCharacterState::HandleInput(Character);
+
+    Character->GetWeaponHandler()->FireWeapon();
 }
 
 void FAimingCharacterState::SetupCamera(AUltimateShooterCharacter* Character)
 {
-	// Character does rotate with the controller
-	Character->bUseControllerRotationYaw = true;
-	Character->bUseControllerRotationPitch = false;
-	Character->bUseControllerRotationRoll = false;
+    // Character does rotate with the controller
+    Character->bUseControllerRotationYaw = true;
+    Character->bUseControllerRotationPitch = false;
+    Character->bUseControllerRotationRoll = false;
 
-	Character->GetCameraState()->SetCameraState(ECameraState::ZoomIn, false);
+    Character->GetCameraState()->SetCameraState(ECameraState::ZoomIn, false);
 }
 
 void FAimingCharacterState::SetupMovement(const AUltimateShooterCharacter* Character)
 {
-	UCharacterMovementComponent* CharacterMovementComponent = Character->GetCharacterMovement();
-	CharacterMovementComponent->bOrientRotationToMovement = false;
-	// CharacterMovementComponent->MaxWalkSpeed = 300.0f;
-	CharacterMovementComponent->JumpZVelocity = 600.0f;
-	CharacterMovementComponent->AirControl = 0.f;
+    UCharacterMovementComponent* CharacterMovementComponent = Character->GetCharacterMovement();
+    CharacterMovementComponent->bOrientRotationToMovement = false;
+    // CharacterMovementComponent->MaxWalkSpeed = 300.0f;
+    CharacterMovementComponent->JumpZVelocity = 600.0f;
+    CharacterMovementComponent->AirControl = 0.f;
 }

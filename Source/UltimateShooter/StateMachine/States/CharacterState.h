@@ -10,9 +10,9 @@ class AUltimateShooterCharacter;
 class FCharacterState
 {
 public:
-	virtual ~FCharacterState() = default;
-	virtual void Enter(AUltimateShooterCharacter* Character) { }
-	virtual void Update(AUltimateShooterCharacter* Character) { }
-	virtual void HandleInput(AUltimateShooterCharacter* Character) { }
-	virtual void Exit(AUltimateShooterCharacter* Character) { }
+    virtual ~FCharacterState() = default;
+    virtual void Enter(AUltimateShooterCharacter* Character) {}
+    virtual void Update(AUltimateShooterCharacter* Character) {}
+    virtual void HandleInput(AUltimateShooterCharacter* Character) {}
+    virtual void Exit(AUltimateShooterCharacter* Character) {}
 };

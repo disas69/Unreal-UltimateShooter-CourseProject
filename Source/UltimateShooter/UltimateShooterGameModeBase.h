@@ -7,11 +7,10 @@
 #include "UltimateShooterGameModeBase.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class ULTIMATESHOOTER_API AUltimateShooterGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
 };
